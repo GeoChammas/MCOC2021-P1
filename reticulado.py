@@ -2,121 +2,80 @@ import numpy as np
 from scipy.linalg import solve
 
 class Reticulado(object):
-    """Define un reticulado"""
     __NNodosInit__ = 100
-
     def __init__(self):
         super(Reticulado, self).__init__()
-        
-        
-        """Implementar"""	
-        
-
+        self.xyz = np.zeros((0,3), dtype=np.double)
+        self.N_nodos = 0
+        self.barras = []
+        self.cargas = {}
+        self.restricciones = {}
 
     def agregar_nodo(self, x, y, z=0):
-        
-        """Implementar"""	
-        
-        return 0
+        self.xyz.resize((self.N_nodos+1, 3))
+        self.xyz[self.N_nodos,:] = [x,y,z]
+        self.N_nodos += 1
+        return()
 
     def agregar_barra(self, barra):
-        
-        """Implementar"""	
-        
-        return 0
+        self.barras.append(barra)
+        return()
 
     def obtener_coordenada_nodal(self, n):
-        
-        """Implementar"""	
-        
-        return 0
+        posicion = n
+        coordenadas = self.xyz[n]
+        return(coordenadas)
 
     def calcular_peso_total(self):
-        
-        """Implementar"""	
-        
-        return 0
+        lista_barras = self.barras
+        peso_total = 0
+        for barra in lista_barras:
+            peso_total += barra.calcular_peso(self)
+        return(peso_total)
 
     def obtener_nodos(self):
-        
-        """Implementar"""	
-        
-        return 0
+        xy = self.xyz
+        return(xy)
 
     def obtener_barras(self):
-        
-        """Implementar"""	
-        
-        return 0
-
-
+        lista_barras = self.barras
+        return(lista_barras)
 
     def agregar_restriccion(self, nodo, gdl, valor=0.0):
-        
-        """Implementar"""	
-        
-        return 0
+        #Falta implementar	
+        return(0)
 
     def agregar_fuerza(self, nodo, gdl, valor):
-        
-        """Implementar"""	
-        
-        return 0
-
+        #Falta implementar	
+        return(0)
 
     def ensamblar_sistema(self):
-        
-        """Implementar"""	
-        
-        return 0
-
-
+        #Falta implementar	
+        return(0)
 
     def resolver_sistema(self):
-        
-        """Implementar"""	
-        
-        return 0
+        #Falta implementar	
+        return(0)
 
     def obtener_desplazamiento_nodal(self, n):
-        
-        """Implementar"""	
-        
-        return 0
-
+        #Falta implementar	
+        return(0)
 
     def obtener_fuerzas(self):
-        
-        """Implementar"""	
-        
-        return 0
-
+        #Falta implementar	
+        return(0)
 
     def obtener_factores_de_utilizacion(self, f):
-        
-        """Implementar"""	
-        
-        return 0
+        #Falta implementar	
+        return(0)
 
     def rediseñar(self, Fu, ϕ=0.9):
-        
-        """Implementar"""	
-        
-        return 0
-
-
+        #Falta implementar	
+        return(0)
 
     def chequear_diseño(self, Fu, ϕ=0.9):
-        
-        """Implementar"""	
-        
-        return 0
-
-
-
-
-
-
+        #Falta implementar	
+        return(0)
 
     def __str__(self):
 
