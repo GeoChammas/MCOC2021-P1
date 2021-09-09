@@ -2,6 +2,8 @@ import numpy as np
 from constantes import g_, ρ_acero, E_acero
 from numpy import pi
 
+
+#clase Barra
 class Barra(object):
     def __init__(self, ni, nj, seccion):
         super(Barra, self).__init__()
