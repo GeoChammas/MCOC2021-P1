@@ -3,13 +3,13 @@ from constantes import g_, ρ_acero, E_acero
 from numpy import pi
 
 
-#clase Barra
 class Barra(object):
     def __init__(self, ni, nj, seccion):
         super(Barra, self).__init__()
         self.ni = ni
         self.nj = nj
         self.seccion = seccion
+        
 
     def obtener_conectividad(self):
         return([self.ni, self.nj])
@@ -53,3 +53,4 @@ class Barra(object):
     def rediseñar(self, Fu, ret, ϕ=0.9):
         #Falta implementar  
         return(0)
+    #hola
