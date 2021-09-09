@@ -9,7 +9,7 @@ class Barra(object):
         self.ni = ni
         self.nj = nj
         self.seccion = seccion
-        
+
 
     def obtener_conectividad(self):
         return([self.ni, self.nj])
@@ -31,7 +31,7 @@ class Barra(object):
         return(peso)
 
     def obtener_rigidez(self, ret):
-        #Falta implementar  
+        #Falta implementar.. 
         return(0)
 
     def obtener_vector_de_cargas(self, ret):
@@ -53,4 +53,4 @@ class Barra(object):
     def rediseñar(self, Fu, ret, ϕ=0.9):
         #Falta implementar  
         return(0)
-    #hola
+    
