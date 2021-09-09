@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.linalg import solve
+
 
 class Reticulado(object):
     """Define un reticulado"""
@@ -129,11 +129,3 @@ class Reticulado(object):
 
 
     def __str__(self):
-
-        s = "Soy un reticulado :)"
-
-        s += "\n"
-        
-        s += str(self.xyz[0 : self.Nnodos,:])
-
-        return s
