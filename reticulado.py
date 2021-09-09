@@ -2,10 +2,10 @@ import numpy as np
 from scipy.linalg import solve
 
 class Reticulado(object):
-    _NNodosInit_ = 100
-    def _init_(self):
-        super(Reticulado, self)._init_()
-        self.xyz = np.zeros((Reticulado._NNodosInit_,3), dtype=np.double)
+    __NNodosInit__ = 100
+    def __init__(self):
+        super(Reticulado, self).__init__()
+        self.xyz = np.zeros((Reticulado.__NNodosInit__,3), dtype=np.double)
         self.Nnodos = 0
         self.barras = []
         self.cargas = {}
