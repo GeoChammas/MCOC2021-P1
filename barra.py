@@ -53,4 +53,5 @@ class Barra(object):
     def rediseñar(self, Fu, ret, ϕ=0.9):
         #Falta implementar  
         return(0)
-    
+
+a = str()
