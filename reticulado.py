@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.linalg import solve
+
 
 class Reticulado(object):
     __NNodosInit__ = 100
@@ -78,5 +78,5 @@ class Reticulado(object):
         return(0)
 
     def __str__(self):
-
+     
         return "Soy un reticulado :)"
