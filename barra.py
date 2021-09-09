@@ -3,6 +3,8 @@ import numpy as np
 from constantes import g_, ρ_acero, E_acero
 
 
+
+#clase Barra
 class Barra(object):
 
     """Constructor para una barra"""
