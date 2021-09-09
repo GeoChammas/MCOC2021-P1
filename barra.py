@@ -4,7 +4,6 @@ from constantes import g_, ρ_acero, E_acero
 
 
 
-#clase Barra
 class Barra(object):
 
     """Constructor para una barra"""
@@ -14,6 +13,7 @@ class Barra(object):
         self.nj = nj
         self.seccion = seccion
         self.color = color
+
 
 
     def obtener_conectividad(self):
@@ -49,10 +49,9 @@ class Barra(object):
 
 
     def obtener_rigidez(self, ret):
-        
-        """Implementar"""	
-        
-        return 0
+
+        #Falta implementar.. 
+        return(0)
 
     def obtener_vector_de_cargas(self, ret):
         
@@ -88,9 +87,9 @@ class Barra(object):
 
 
     def rediseñar(self, Fu, ret, ϕ=0.9):
-        
-        """Implementar"""	
-        
-        return 0
 
+        #Falta implementar  
+        return(0)
+
+a = str()
 
