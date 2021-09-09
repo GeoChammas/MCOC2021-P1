@@ -13,9 +13,7 @@ class Barra(object):
         return([self.ni, self.nj])
     
     def calcular_area(self):
-        d = self.seccion.D - self.seccion.Dint
-        area = pi*(self.seccion.D**2 - d**2)/4
-        return(area)
+        return self.seccion.area()
     
     def calcular_largo(self, reticulado):
         n_i = reticulado.obtener_coordenada_nodal(self.ni)
@@ -31,25 +29,25 @@ class Barra(object):
         return(peso)
 
     def obtener_rigidez(self, ret):
-        #Falta implementar	
+        #Falta implementar  
         return(0)
 
     def obtener_vector_de_cargas(self, ret):
-        #Falta implementar	
+        #Falta implementar  
         return(0)
 
     def obtener_fuerza(self, ret):
-        #Falta implementar	
+        #Falta implementar  
         return(0)
 
     def chequear_diseño(self, Fu, ret, ϕ=0.9):
-        #Falta implementar	
+        #Falta implementar  
         return(0)
 
     def obtener_factor_utilizacion(self, Fu, ϕ=0.9):
-        #Falta implementar	
+        #Falta implementar  
         return(0)
 
     def rediseñar(self, Fu, ret, ϕ=0.9):
-        #Falta implementar	
+        #Falta implementar  
         return(0)
