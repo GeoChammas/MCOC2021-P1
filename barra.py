@@ -1,95 +1,55 @@
 import numpy as np
-
 from constantes import g_, ρ_acero, E_acero
-
+from numpy import pi
 
 
 class Barra(object):
-
-    """Constructor para una barra"""
-    def __init__(self, ni, nj, seccion, color=np.random.rand(3)):
+    def __init__(self, ni, nj, seccion):
         super(Barra, self).__init__()
         self.ni = ni
         self.nj = nj
         self.seccion = seccion
-        self.color = color
-
 
 
     def obtener_conectividad(self):
-        return [self.ni, self.nj]
-
+        return([self.ni, self.nj])
+    
+    def calcular_area(self):
+        return self.seccion.area()
+    
     def calcular_largo(self, reticulado):
-        """Devuelve el largo de la barra. 
-        xi : Arreglo numpy de dimenson (3,) con coordenadas del nodo i
-        xj : Arreglo numpy de dimenson (3,) con coordenadas del nodo j
-        """
-        
-        ni = self.ni
-        nj = self.nj
-
-        xi = reticulado.xyz[ni,:]
-        xj = reticulado.xyz[nj,:]
-
-        print(f"Barra {ni} a {nj} xi = {xi} xj = {xj}")
-
-        return 0
+        n_i = reticulado.obtener_coordenada_nodal(self.ni)
+        n_j = reticulado.obtener_coordenada_nodal(self.nj)
+        x, y, z = abs(n_i[0] - n_j[0]), abs(n_i[1] - n_j[1]), abs(n_i[2] - n_j[2])
+        L = (x**2 + y**2)**(0.5)
+        return(L)
 
     def calcular_peso(self, reticulado):
-        """Devuelve el largo de la barra. 
-        xi : Arreglo numpy de dimenson (3,) con coordenadas del nodo i
-        xj : Arreglo numpy de dimenson (3,) con coordenadas del nodo j
-        """
-        
-        """Implementar"""	
-        
-        return 0
-
-
-
+        area = self.calcular_area()
+        largo = self.calcular_largo(reticulado)
+        peso = (area*largo)*ρ_acero*g_
+        return(peso)
 
     def obtener_rigidez(self, ret):
-
         #Falta implementar.. 
         return(0)
 
     def obtener_vector_de_cargas(self, ret):
-        
-        """Implementar"""	
-        
-        return 0
-
-
-    def obtener_fuerza(self, ret):
-        
-        """Implementar"""	
-        
-        return 0
-
-
-
-
-    def chequear_diseño(self, Fu, ret, ϕ=0.9):
-        
-        """Implementar"""	
-        
-        return 0
-
-
-
-
-
-    def obtener_factor_utilizacion(self, Fu, ϕ=0.9):
-        
-        """Implementar"""	
-        
-        return 0
-
-
-    def rediseñar(self, Fu, ret, ϕ=0.9):
-
         #Falta implementar  
         return(0)
 
-a = str()
+    def obtener_fuerza(self, ret):
+        #Falta implementar  
+        return(0)
 
+    def chequear_diseño(self, Fu, ret, ϕ=0.9):
+        #Falta implementar  
+        return(0)
+
+    def obtener_factor_utilizacion(self, Fu, ϕ=0.9):
+        #Falta implementar  
+        return(0)
+
+    def rediseñar(self, Fu, ret, ϕ=0.9):
+        #Falta implementar  
+        return(0)
