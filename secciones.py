@@ -34,38 +34,37 @@ class SeccionICHA(object):
         self.denominacion = denominacion
         self.color = color
         var = self.denominacion.split('x')
-        perfil, d, x = '', 0, self.denominacion.count('x')
-        if x <= 2:
-            for i in range(len(var[0])):
-                if var[0][i].isdigit():
-                    d += (10**(len(var[0])-i-1))*int(var[0][i])
-                else:
-                    perfil += var[0][i]
-            bf, p = int(var[1]), float(var[2])  
-            planilla = [f'{perfil}']
-            if perfil =='[]':
-                planilla = ['Cajon']
-            if perfil == '':
-                planilla = ['Circulares Mayores']
-        else:
-            slash = self.denominacion.count('/')
-            perfil = var[0][0:]
-            D, Dint, t = float(var[1]), float(var[2]), float(var[3])
+        perfil, d = '', 0
+        for i in range(len(var[0])):
+            if var[0][i].isdigit():
+                d += (10**(len(var[0])-i-1))*int(var[0][i])
+            else:
+                perfil += var[0][i]
+        
+        bf = int(var[1])
+        planilla = [f'{perfil}']
+        if perfil =='[]':
+            planilla = ['Cajon']
+        if perfil == 'O':
+            planilla = ['Circulares Mayores']
+        if perfil == 'o':
             planilla = ['Circulares Menores']
         self.data = pd.concat(pd.read_excel(base_datos, header=11, sheet_name=planilla), ignore_index=True)
         datos, match, index = self.data.values.tolist(), False, False
         for i in range(len(datos)):
             if planilla[0] in ['H','PH','Cajon']:
+                p = float(var[2])
                 if datos[i][0:6] == [perfil, d, '×', bf, '×', p]:
                     match, index = True, i
             elif planilla[0] == 'HR':
+                p = float(var[2])
                 if datos[i][4:10] == [perfil, d, '×', bf, '×', p]:
                     match, index = True, i
             elif planilla[0] == 'Circulares Mayores':
-                if datos[i][0:3] == [d,bf,p]:
+                if datos[i][0:2] == [d,bf]:
                     match, index = True, i
             else:
-                if datos[i][1:4] == [D,Dint,t]:
+                if datos[i][1:3] == [d,bf]:
                     match, index = True, i
         self.perfil = planilla[0]
         self.match = match
