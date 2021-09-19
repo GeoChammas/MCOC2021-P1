@@ -34,39 +34,66 @@ class SeccionICHA(object):
         self.denominacion = denominacion
         self.color = color
         var = self.denominacion.split('x')
-        perfil, d = '', 0
+        perfil, d, HEAD = '', '', 11
         for i in range(len(var[0])):
-            if var[0][i].isdigit():
-                d += (10**(len(var[0])-i-1))*int(var[0][i])
-            else:
+            if var[0][i].isdigit() == False:
                 perfil += var[0][i]
+            else:
+                d += (var[0][i:])
+                break
         
-        bf = int(var[1])
-        planilla = [f'{perfil}']
-        if perfil =='[]':
+        if var[0].count('.') > 0:
+            d = float(d)
+        else:
+            d = int(d)
+        
+        if var[1].count('.') > 0:
+            bf = float(var[1])
+        else:
+            bf = int(var[1])
+            
+        if perfil == 'W':
+            planilla = ['HR']
+        elif perfil =='[]':
             planilla = ['Cajon']
-        if perfil == 'O':
+        elif perfil == 'O':
             planilla = ['Circulares Mayores']
-        if perfil == 'o':
+            HEAD = 10
+        elif perfil == 'o':
             planilla = ['Circulares Menores']
-        self.data = pd.concat(pd.read_excel(base_datos, header=11, sheet_name=planilla), ignore_index=True)
+            HEAD = 10
+        else:
+            planilla = [f'{perfil}']
+            
+        self.data = pd.concat(pd.read_excel(base_datos, header=HEAD, sheet_name=planilla), ignore_index=True)
         datos, match, index = self.data.values.tolist(), False, False
+        
         for i in range(len(datos)):
             if planilla[0] in ['H','PH','Cajon']:
-                p = float(var[2])
+                if var[2].count('.') > 0:
+                    p = float(var[2])
+                else:
+                    p = int(var[2])
                 if datos[i][0:6] == [perfil, d, '×', bf, '×', p]:
                     match, index = True, i
             elif planilla[0] == 'HR':
-                p = float(var[2])
-                if datos[i][4:10] == [perfil, d, '×', bf, '×', p]:
-                    match, index = True, i
+                if perfil == 'HR':
+                    if var[2].count('.') > 0:
+                        p = float(var[2])
+                    else:
+                        p = int(var[2])
+                    if datos[i][4:10] == [perfil, d, '×', bf, '×', p]:
+                        match, index = True, i
+                else:
+                    if datos[i][0:4] == [perfil, d, '×', bf]:
+                        match, index = True, i
             elif planilla[0] == 'Circulares Mayores':
                 if datos[i][0:2] == [d,bf]:
                     match, index = True, i
             else:
                 if datos[i][1:3] == [d,bf]:
                     match, index = True, i
-        self.perfil = planilla[0]
+        self.perfil = perfil
         self.match = match
         self.index = index
 
@@ -75,18 +102,21 @@ class SeccionICHA(object):
         return(df[self.index][0]/10**6)
 
     def peso(self):
-        df = (pd.DataFrame(self.data, columns=['peso'])).values.tolist()
+        if self.perfil == 'W':
+            df = (pd.DataFrame(self.data, columns=['peso (lbf)'])).values.tolist()
+        else:
+            df = (pd.DataFrame(self.data, columns=['peso'])).values.tolist()
         return(df[self.index][0])
 
     def inercia_xx(self):
-        if self.perfil =='Circulares Mayores' or self.perfil == 'Circulares Menores':
+        if self.perfil =='O' or self.perfil == 'o':
             df = pd.DataFrame(self.data, columns=['I/10⁶']).values.tolist()
         else:
             df = pd.DataFrame(self.data, columns=['Ix/10⁶']).values.tolist()
         return(df[self.index][0])
 
     def inercia_yy(self):
-        if self.perfil == 'Circulares Mayores' or self.perfil == 'Circulares Menores':
+        if self.perfil == 'O' or self.perfil == 'o':
             df = pd.DataFrame(self.data, columns=['I/10⁶']).values.tolist()
         else:
             df = pd.DataFrame(self.data, columns=['Iy/10⁶']).values.tolist()
