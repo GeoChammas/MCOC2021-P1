@@ -102,10 +102,7 @@ class SeccionICHA(object):
         return(df[self.index][0]/10**6)
 
     def peso(self):
-        if self.perfil == 'W':
-            df = (pd.DataFrame(self.data, columns=['peso (lbf)'])).values.tolist()
-        else:
-            df = (pd.DataFrame(self.data, columns=['peso'])).values.tolist()
+        df = (pd.DataFrame(self.data, columns=['peso'])).values.tolist()
         return(df[self.index][0])
 
     def inercia_xx(self):
