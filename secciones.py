@@ -99,7 +99,7 @@ class SeccionICHA(object):
 
     def area(self):
         df = (pd.DataFrame(self.data, columns=['A'])).values.tolist()
-        return(df[self.index][0]/10**6)
+        return(df[self.index][0]*(mm_)**2)
 
     def peso(self):
         df = (pd.DataFrame(self.data, columns=['peso'])).values.tolist()
