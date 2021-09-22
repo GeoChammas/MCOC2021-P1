@@ -76,9 +76,29 @@ class Reticulado(object):
                     self.f[p] += fe[i]
 
     def resolver_sistema(self):
-        """Implementar"""	
-        
-        return 0
+        doffree = np.arange(self.Ndof)
+        dofconstrained = []
+        for nodo in self.restricciones:
+            for restriccion in self.restricciones[nodo]:
+                dof, value = restriccion[0], restriccion[1]
+                dofglobal = dof+nodo*self.Ndimensiones
+                self.u[dofglobal] += value
+                dofconstrained.append(dofglobal)
+        dofconstrained = np.array(dofconstrained)
+        doffree = np.setdiff1d(doffree, dofconstrained)
+        for nodo in self.cargas:
+            for carga in self.cargas[nodo]:
+                dof, value = carga[0], carga[1]
+                dofglobal = dof+nodo*self.Ndimensiones
+                self.f[dofglobal] += value
+        kff = self.k[np.ix_(doffree, doffree)]
+        kfc = self.k[np.ix_(doffree, dofconstrained)]
+        kcf = kfc.T
+        kcc = self.k[np.ix_(dofconstrained, dofconstrained)]
+        uf, uc = self.u[doffree], self.u[dofconstrained]
+        ff, fc = self.f[doffree], self.f[dofconstrained]
+        uf = solve(kff, ff-kfc@uc)
+        self.u[doffree] = uf
 
     def obtener_desplazamiento_nodal(self, n):
         if self.Ndimensiones == 2:
