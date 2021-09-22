@@ -11,7 +11,6 @@ class Reticulado(object):
         self.barras = []
         self.cargas = {}
         self.restricciones = {}
-        self.fuerzas = []
 
     def agregar_nodo(self, x, y, z=0):
         self.xyz.resize((self.Nnodos+1, 3))
@@ -55,17 +54,15 @@ class Reticulado(object):
         else:
             self.cargas[nodo].append([gdl, valor])
 
-#Agregar factor_peso_propio ¿(1+factor_peso_propio)?
-    def ensamblar_sistema(self, factor_peso_propio=0.0):
+    def ensamblar_sistema(self, factor_peso_propio=0.):
         self.Ndof = self.Nnodos*self.Ndimensiones
         self.k = np.zeros((self.Ndof, self.Ndof), dtype=np.double)
         self.f = np.zeros((self.Ndof), dtype=np.double)
         self.u = np.zeros((self.Ndof), dtype=np.double)
+        self.fpp = factor_peso_propio*2
         for i,b in enumerate(self.barras):
             ke, fe = b.obtener_rigidez(self), b.obtener_vector_de_cargas(self)
             n_i, n_j = b.obtener_conectividad()
-
-            #código video profe
             if self.Ndimensiones == 2:
                 d = [2*n_i, 2*n_i+1, 2*n_j, 2*n_j+1]
             else:
@@ -75,27 +72,25 @@ class Reticulado(object):
                 for j in range(2*self.Ndimensiones):
                     q = d[j]
                     self.k[p,q] += ke[i,j]
-                self.f[p] = fe[i]
+                if factor_peso_propio != [0., 0., 0.]:
+                    self.f[p] += fe[i]
 
-
-                
     def resolver_sistema(self):
         """Implementar"""	
         
         return 0
-        
+
     def obtener_desplazamiento_nodal(self, n):
         if self.Ndimensiones == 2:
             dof = [2*n, 2*n+1]
         else:
             dof = [3*n, 3*n+1, 3*n+2]
-        return self.u[dof]
+        return(self.u[dof])
 
     def obtener_fuerzas(self):
         fuerzas = np.zeros((len(self.barras)), dtype=np.double)
         for i,b in enumerate(self.barras):
             fuerzas[i] = b.obtener_fuerza(self)
-            self.fuerzas.append(fuerzas[i])
         return(fuerzas)
 
     def obtener_factores_de_utilizacion(self, f):
@@ -127,12 +122,11 @@ class Reticulado(object):
         t = self.u.reshape((-1,self.Ndimensiones))
         for i in range(self.Nnodos):
             if self.Ndimensiones == 2:
-                s += f'{i} : ({t[i,0]}, {t[i,1]}, {0.0})\n'
+                s += f'{i} : ({t[i,0]}, {t[i,1]})\n'
             else:
                 s += f'{i} : ({t[i,0]}, {t[i,1]}, {t[i,2]})\n'
         s += '\nfuerzas:\n'
-        for i in range(len(self.fuerzas)):
-            s += f'{i} : {self.fuerzas[i]}\n'
+        for i in range(len(Reticulado.obtener_fuerzas(self))):
+            s += f'{i} : {Reticulado.obtener_fuerzas(self)[i]}\n'
         s += f'\nNdimensiones = {self.Ndimensiones}'
         return(s)
-
