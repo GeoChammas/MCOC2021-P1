@@ -119,6 +119,9 @@ class SeccionICHA(object):
             df = pd.DataFrame(self.data, columns=['Iy/10⁶']).values.tolist()
         return(df[self.index][0])
 
+    def nombre(self):
+        return self.denominacion
+
     def __str__(self):
         if self.match == True:
             s = f'{self.denominacion} encontrada. A={self.area()} Ix={self.inercia_xx()} Iy={self.inercia_yy()}'
