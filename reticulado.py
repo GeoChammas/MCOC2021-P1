@@ -1,5 +1,8 @@
 import numpy as np
 from scipy.linalg import solve
+from barra import Barra
+from constantes import g_, ρ_acero, E_acero
+from secciones import SeccionICHA
 
 class Reticulado(object):
     __NNodosInit__ = 100
@@ -54,7 +57,7 @@ class Reticulado(object):
         else:
             self.cargas[nodo].append([gdl, valor])
 
-    def ensamblar_sistema(self, factor_peso_propio=0.):
+    def ensamblar_sistema(self, factor_peso_propio=0., factor_cargas=0.):
         self.Ndof = self.Nnodos*self.Ndimensiones
         self.k = np.zeros((self.Ndof, self.Ndof), dtype=np.double)
         self.f = np.zeros((self.Ndof), dtype=np.double)
@@ -112,19 +115,125 @@ class Reticulado(object):
         for i,b in enumerate(self.barras):
             fuerzas[i] = b.obtener_fuerza(self)
         return(fuerzas)
+    
+    def obtener_factores_de_utilizacion(self, f, ϕ=0.9):
+        FU = np.zeros((len(self.barras)), dtype=np.double)
+        for i,b in enumerate(self.barras):
+            FU[i] = b.obtener_factor_utilizacion(f[i], ϕ)
+        return(FU)
 
-    def obtener_factores_de_utilizacion(self, f):
-        #Falta implementar	
-        return(0)
-
+    #ARREGLAR
     def rediseñar(self, Fu, ϕ=0.9):
-        #Falta implementar	
-        return(0)
+        for i,b in enumerate(self.barras):
+            print(f'Rediseñar barra {i} y cambiarlo por {b.rediseñar(Fu[i], self, ϕ)}')
 
     def chequear_diseño(self, Fu, ϕ=0.9):
-        #Falta implementar	
-        return(0)
+        cumple = True
+        for i,b in enumerate(self.barras):
+            if not b.chequear_diseño(Fu[i], self, ϕ):
+                print(f"----> Barra {i} no cumple algun criterio. ")
+                cumple = False
+        return(cumple)
 
+    def guardar(self, nombre):
+        import h5py
+        dataset = h5py.File(nombre, "w")
+
+        #Nodos
+        dataset["xyz"] = self.xyz
+       
+        barras = np.zeros((len(self.barras), 2), dtype = np.int32)
+        secciones = dataset.create_dataset('secciones', shape=((len(self.barras)),1), dtype=h5py.string_dtype())
+        restricciones = dataset.create_dataset("restricciones", shape=((len(self.barras)),2), dtype= np.int32)
+        restricciones_val = dataset.create_dataset("restricciones_val", shape=((len(self.barras)),1), dtype= np.double)
+        cargas = dataset.create_dataset('cargas', shape=((len(self.barras)),2), dtype= np.int32)
+        cargas_val = dataset.create_dataset('cargas_val', shape=((len(self.barras)),1), dtype = np.double)
+       
+        #Barras y Secciones
+        for i, b in enumerate(self.barras):
+            barras[i, 0] = b.ni
+            barras[i, 1] = b.nj
+            secciones[i,0] = b.seccion.nombre()
+        dataset["barras"] = barras
+    
+        #Restricciones
+        Restricciones = sorted(self.restricciones.items())
+        lista = []
+        for nodo in Restricciones:
+            gdl = []
+            restr = []
+            for i in nodo[1]:          
+                gdl.append(int(i[0]))
+                restr.append(int(i[1]))
+            lista.append([nodo[0], gdl, restr])
+        
+        j = 0
+        for nodo in lista:
+            if len(nodo[1]) == 2:
+                    restricciones[j, 0] = nodo[0]
+                    restricciones[j, 1] = nodo[1][0]
+                    restricciones[j+1, 0] = nodo[0]
+                    restricciones[j+1, 1] = nodo[1][1]
+                    restricciones_val[j, 0] = nodo[2][0]
+                    restricciones_val[j+1, 0] = nodo[2][1]
+                    j += 2
+            else:
+                    restricciones[j, 0] = nodo[0]
+                    restricciones[j, 1] = nodo[1][0]
+                    restricciones[j+1, 0] = nodo[0]
+                    restricciones[j+1, 1] = nodo[1][1]
+                    restricciones[j+2, 0] = nodo[0]
+                    restricciones[j+2, 1] = nodo[1][2]
+                    restricciones_val[j, 0] = nodo[2][0]
+                    restricciones_val[j+1, 0] = nodo[2][1]
+                    restricciones_val[j+2, 0] = nodo[2][2]
+                    j += 3
+        
+        #Cargas
+        Cargas = sorted(self.cargas.items())
+        lista = []
+        for nodo in Cargas:
+            gdl = []
+            carga_puntual = []
+            for i in nodo[1]:          
+                gdl.append(int(i[0]))
+                carga_puntual.append(int(i[1]))
+            lista.append([nodo[0], gdl, carga_puntual])
+                
+        for k,nodo in enumerate(lista):
+            cargas[k, 0] = nodo[0]
+            cargas[k, 1] = nodo[1][0]
+            cargas_val[k, 0] = nodo[2][0]
+        dataset.close()
+        
+    def abrir(self, archivo):
+        import h5py
+        fid = h5py.File(archivo, "r")
+        barras = fid["barras"]
+        cargas = fid["cargas"]
+        cargas_val = fid["cargas_val"]
+        restricciones = fid["restricciones"]
+        restricciones_val = fid["restricciones_val"]
+        secciones = fid["secciones"]
+        xyz = fid["xyz"]
+        
+        #Barras y Secciones
+        for i,b in enumerate(barras):
+            self.agregar_barra(Barra(np.int32(b[0]),np.int32(b[1]),SeccionICHA(secciones[i][0])))
+
+        #Cargas
+        for i, c in enumerate(cargas):           
+            self.agregar_fuerza(np.int32(c[0]),np.float32(c[1]),np.float32(cargas_val[i]))
+        
+        #Restricciones
+        for i, r in enumerate(restricciones):           
+            self.agregar_restriccion(np.int32(r[0]),np.int32(r[1]),np.int32(restricciones_val[i]))
+            
+        #Nodos
+        for i in xyz:
+            self.agregar_nodo(i[0],i[1],i[2])
+        fid.close()
+        
     def __str__(self):
         s = 'nodos:\n'
         for i in range(len(self.xyz)):
