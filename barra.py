@@ -1,5 +1,6 @@
 import numpy as np
-from constantes import g_, ρ_acero, E_acero
+from constantes import g_, ρ_acero, E_acero, σy_acero
+from secciones import BuscarOptimo
 
 class Barra(object):
     def __init__(self, ni, nj, seccion, color=np.random.rand(3)):
@@ -8,7 +9,7 @@ class Barra(object):
         self.nj = nj
         self.seccion = seccion
         self.color = color
-
+        
     def obtener_conectividad(self):
         return([self.ni, self.nj])
     
@@ -63,13 +64,63 @@ class Barra(object):
         return(area*E_acero/largo*(TO.T@ue))
 
     def chequear_diseño(self, Fu, ret, ϕ=0.9):
-        #Falta implementar  
-        return(0)
+        area = self.seccion.area()
+        peso = self.seccion.peso()
+        inercia_xx = self.seccion.inercia_xx()
+        inercia_yy = self.seccion.inercia_yy()
+        nombre = self.seccion.nombre()
+        
+        #Resistencia nominal
+        Fn = area*σy_acero
+
+        #Revisar resistencia nominal
+        if abs(Fu) > ϕ*Fn:
+            print(f"Resistencia nominal Fu = {Fu} ϕ*Fn = {ϕ*Fn}")
+            return(False)
+
+        L = self.calcular_largo(ret)
+
+        #Inercia es la minima
+        I = min(inercia_xx, inercia_yy)
+        i = np.sqrt(I/area)
+
+        #Revisar radio de giro
+        if Fu >= 0 and L/i > 300:
+            print(f"Esbeltez Fu = {Fu} L/i = {L/i}")
+            return(False)
+
+        #Revisar carga critica de pandeo
+        if Fu < 0:  #solo en traccion
+            Pcr = np.pi**2*E_acero*I / L**2
+            if abs(Fu) > Pcr:
+                print(f"Pandeo Fu = {Fu} Pcr = {Pcr}")
+                return(False)
+        
+        #Si pasa todas las pruebas, estamos bien
+        return(True)
 
     def obtener_factor_utilizacion(self, Fu, ϕ=0.9):
-        #Falta implementar  
-        return(0)
+        A = self.seccion.area()
+        Fn = A*σy_acero
+        return(abs(Fu)/(ϕ*Fn))
 
+    #Retorna una lista, perfil optimo(lista), su indice(int), area(float), peso(float), inercia_xx(int) y inercia_yy(int)
     def rediseñar(self, Fu, ret, ϕ=0.9):
-        #Falta implementar  
-        return(0)
+        perfiles = ['H','PH','[]','HR','O','o']
+        optimos = []
+        barras_malas = []
+        if Barra.chequear_diseño(self, Fu, ret) == False:
+            barras_malas.append([self.ni, self.nj])
+        rediseño = [self.ni, self.nj]
+        barras_malas = [[0,1],[1,2],[3,4]] #modificar
+        if rediseño in barras_malas:
+            area = Fu/(ϕ*σy_acero)
+            for i in range(len(perfiles)):
+                sec = BuscarOptimo(perfiles[i], area, base_datos="Perfiles ICHA.xlsx")
+                if sec.area() is not None:
+                    optimos.append([sec.dimensiones(), sec.indice(), sec.area(), sec.peso(), sec.inercia_xx(), sec.inercia_yy()])
+            perfil_optimo = np.zeros(len(optimos[0]))
+            for i in range(len(optimos)):
+                if perfil_optimo[2] < optimos[i][2]:
+                    perfil_optimo = optimos[i]
+        return(perfil_optimo)
