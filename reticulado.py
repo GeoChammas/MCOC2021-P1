@@ -57,7 +57,7 @@ class Reticulado(object):
         else:
             self.cargas[nodo].append([gdl, valor])
 
-    def ensamblar_sistema(self, factor_peso_propio=0., factor_cargas=0.):
+    def ensamblar_sistema(self, factor_peso_propio=0., factor_cargas=0.0):
         self.Ndof = self.Nnodos*self.Ndimensiones
         self.k = np.zeros((self.Ndof, self.Ndof), dtype=np.double)
         self.f = np.zeros((self.Ndof), dtype=np.double)
@@ -138,17 +138,13 @@ class Reticulado(object):
     def guardar(self, nombre):
         import h5py
         dataset = h5py.File(nombre, "w")
-
+        
         #Nodos
         dataset["xyz"] = self.xyz
-       
+
         barras = np.zeros((len(self.barras), 2), dtype = np.int32)
         secciones = dataset.create_dataset('secciones', shape=((len(self.barras)),1), dtype=h5py.string_dtype())
-        restricciones = dataset.create_dataset("restricciones", shape=((len(self.barras)),2), dtype= np.int32)
-        restricciones_val = dataset.create_dataset("restricciones_val", shape=((len(self.barras)),1), dtype= np.double)
-        cargas = dataset.create_dataset('cargas', shape=((len(self.barras)),2), dtype= np.int32)
-        cargas_val = dataset.create_dataset('cargas_val', shape=((len(self.barras)),1), dtype = np.double)
-       
+    
         #Barras y Secciones
         for i, b in enumerate(self.barras):
             barras[i, 0] = b.ni
@@ -158,6 +154,13 @@ class Reticulado(object):
     
         #Restricciones
         Restricciones = sorted(self.restricciones.items())
+        largo = 0
+        for nodo in self.restricciones:
+            for i in self.restricciones[nodo]:
+                largo += 1
+        restricciones = dataset.create_dataset("restricciones", shape=(largo,2), dtype= np.int32)
+        restricciones_val = dataset.create_dataset("restricciones_val", shape=(largo,1), dtype= np.double)
+       
         lista = []
         for nodo in Restricciones:
             gdl = []
@@ -191,6 +194,13 @@ class Reticulado(object):
         
         #Cargas
         Cargas = sorted(self.cargas.items())
+        largo = 0
+        for nodo in self.cargas:
+            for i in self.cargas[nodo]:
+                largo += 1
+        cargas = dataset.create_dataset('cargas', shape=(largo,2), dtype= np.int32)
+        cargas_val = dataset.create_dataset('cargas_val', shape=(largo,1), dtype = np.double)
+        
         lista = []
         for nodo in Cargas:
             gdl = []
@@ -219,7 +229,7 @@ class Reticulado(object):
         
         #Barras y Secciones
         for i,b in enumerate(barras):
-            self.agregar_barra(Barra(np.int32(b[0]),np.int32(b[1]),SeccionICHA(secciones[i][0])))
+            self.agregar_barra(Barra(np.int32(b[0]),np.int32(b[1]),SeccionICHA(secciones[i][0]),color=np.random.rand(3)))
 
         #Cargas
         for i, c in enumerate(cargas):           
@@ -233,7 +243,7 @@ class Reticulado(object):
         for i in xyz:
             self.agregar_nodo(i[0],i[1],i[2])
         fid.close()
-        
+
     def __str__(self):
         s = 'nodos:\n'
         for i in range(len(self.xyz)):
