@@ -1,6 +1,5 @@
 import numpy as np
 from constantes import g_, ρ_acero, E_acero, σy_acero
-from secciones import BuscarOptimo
 
 class Barra(object):
     def __init__(self, ni, nj, seccion, color=np.random.rand(3)):
