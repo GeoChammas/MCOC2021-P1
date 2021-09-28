@@ -104,23 +104,5 @@ class Barra(object):
         Fn = A*σy_acero
         return(abs(Fu)/(ϕ*Fn))
 
-    #Retorna una lista, perfil optimo(lista), su indice(int), area(float), peso(float), inercia_xx(int) y inercia_yy(int)
     def rediseñar(self, Fu, ret, ϕ=0.9):
-        perfiles = ['H','PH','[]','HR','O','o']
-        optimos = []
-        barras_malas = []
-        if Barra.chequear_diseño(self, Fu, ret) == False:
-            barras_malas.append([self.ni, self.nj])
-        rediseño = [self.ni, self.nj]
-        barras_malas = [[0,1],[1,2],[3,4]] #modificar
-        if rediseño in barras_malas:
-            area = Fu/(ϕ*σy_acero)
-            for i in range(len(perfiles)):
-                sec = BuscarOptimo(perfiles[i], area, base_datos="Perfiles ICHA.xlsx")
-                if sec.area() is not None:
-                    optimos.append([sec.dimensiones(), sec.indice(), sec.area(), sec.peso(), sec.inercia_xx(), sec.inercia_yy()])
-            perfil_optimo = np.zeros(len(optimos[0]))
-            for i in range(len(optimos)):
-                if perfil_optimo[2] < optimos[i][2]:
-                    perfil_optimo = optimos[i]
-        return(perfil_optimo)
+        return(0)
